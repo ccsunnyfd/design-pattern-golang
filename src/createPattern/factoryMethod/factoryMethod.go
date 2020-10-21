@@ -33,36 +33,36 @@ func (wbtn *windowsButton) onClick() {
 	fmt.Println("windowsButton onClick...")
 }
 
-type dialog interface {
+type buttonFactory interface {
 	renderWindow()
 	createButton() button
 }
 
-type htmlDialog struct {
-	dialog
+type htmlButtonFactory struct {
+	buttonFactory
 }
 
-func (hDial *htmlDialog) createButton() button {
+func (hDial *htmlButtonFactory) createButton() button {
 	return new(htmlButton)
 }
 
-func (hDial *htmlDialog) renderWindow() {
+func (hDial *htmlButtonFactory) renderWindow() {
 	hDial.createButton().render()
 }
 
-type windowsDialog struct {
-	dialog
+type windowsButtonFactory struct {
+	buttonFactory
 }
 
-func (wDial *windowsDialog) createButton() button {
+func (wDial *windowsButtonFactory) createButton() button {
 	return new(windowsButton)
 }
 
-func (wDial *windowsDialog) renderWindow() {
+func (wDial *windowsButtonFactory) renderWindow() {
 	wDial.createButton().render()
 }
 
 func main() {
-	dialog := new(htmlDialog)
+	dialog := new(windowsButtonFactory)
 	dialog.renderWindow()
 }
