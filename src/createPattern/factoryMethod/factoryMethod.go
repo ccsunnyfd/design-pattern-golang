@@ -1,68 +1,89 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"runtime"
+)
 
-type button interface {
+type iButton interface {
+	setSize(size int)
+	getSize() int
 	render()
-	onClick()
 }
 
+type button struct {
+	size int
+}
+
+func (btn *button) setSize(size int) {
+	btn.size = size
+}
+
+func (btn *button) getSize() int {
+	return btn.size
+}
+
+// exact button
 type htmlButton struct {
 	button
 }
 
-func (hbtn *htmlButton) render() {
-	fmt.Println("htmlButton render...")
-	hbtn.onClick()
+func (hBtn *htmlButton) render() {
+	fmt.Printf("html render. size: %d", hBtn.getSize())
 }
 
-func (hbtn *htmlButton) onClick() {
-	fmt.Println("htmlButton onClick...")
-}
-
+// exact button
 type windowsButton struct {
 	button
 }
 
-func (wbtn *windowsButton) render() {
-	fmt.Println("windowsButton render...")
-	wbtn.onClick()
-}
-
-func (wbtn *windowsButton) onClick() {
-	fmt.Println("windowsButton onClick...")
+func (wBtn *windowsButton) render() {
+	fmt.Printf("windows render. size: %d", wBtn.getSize())
 }
 
 type buttonFactory interface {
 	renderWindow()
-	createButton() button
+	createButton() iButton
 }
 
+// exact factory
 type htmlButtonFactory struct {
-	buttonFactory
 }
 
-func (hDial *htmlButtonFactory) createButton() button {
-	return new(htmlButton)
+func (hBtnFact *htmlButtonFactory) createButton() iButton {
+	return &htmlButton{
+		button: button{
+			size: 14,
+		},
+	}
 }
 
-func (hDial *htmlButtonFactory) renderWindow() {
-	hDial.createButton().render()
+func (hBtnFact *htmlButtonFactory) renderWindow() {
+	hBtnFact.createButton().render()
 }
 
+// exact factory
 type windowsButtonFactory struct {
-	buttonFactory
 }
 
-func (wDial *windowsButtonFactory) createButton() button {
-	return new(windowsButton)
+func (wBtnFact *windowsButtonFactory) createButton() iButton {
+	return &windowsButton{
+		button: button{
+			size: 17,
+		},
+	}
 }
 
-func (wDial *windowsButtonFactory) renderWindow() {
-	wDial.createButton().render()
+func (wBtnFact *windowsButtonFactory) renderWindow() {
+	wBtnFact.createButton().render()
 }
 
 func main() {
-	dialog := new(windowsButtonFactory)
-	dialog.renderWindow()
+	if runtime.GOOS == "windows" {
+		wBtnF := windowsButtonFactory{}
+		wBtnF.renderWindow()
+	} else {
+		hBtnF := htmlButtonFactory{}
+		hBtnF.renderWindow()
+	}
 }

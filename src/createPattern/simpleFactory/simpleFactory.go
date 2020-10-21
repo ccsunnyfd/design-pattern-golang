@@ -5,37 +5,67 @@ import (
 	"runtime"
 )
 
-type button interface {
+type iButton interface {
+	setSize(size int)
+	getSize() int
 	render()
 }
 
+type button struct {
+	size int
+}
+
+func (btn *button) setSize(size int) {
+	btn.size = size
+}
+
+func (btn *button) getSize() int {
+	return btn.size
+}
+
+// exact button
 type htmlButton struct {
 	button
 }
 
-func (hbtn *htmlButton) render() {
-	fmt.Println("htmlButton render...")
+func (hBtn *htmlButton) render() {
+	fmt.Printf("html render. size: %d", hBtn.getSize())
 }
 
+func newHTMLButton() iButton {
+	return &htmlButton{
+		button: button{
+			size: 14,
+		},
+	}
+}
+
+// exact button
 type windowsButton struct {
 	button
 }
 
-func (wbtn *windowsButton) render() {
-	fmt.Println("windowsButton render...")
+func (wBtn *windowsButton) render() {
+	fmt.Printf("windows render. size: %d", wBtn.getSize())
 }
 
-type buttonFactory struct {
-}
-
-func (bf *buttonFactory) getButton(osName string) (button, error) {
-	if "windows" == osName {
-		return new(windowsButton), nil
+func newWindowsButton() iButton {
+	return &windowsButton{
+		button: button{
+			size: 17,
+		},
 	}
-	return new(htmlButton), nil
+}
+
+// getButtonFactory
+func getButtonFactory(osName string) (iButton, error) {
+	if osName == "windows" {
+		return newWindowsButton(), nil
+	}
+	return newHTMLButton(), nil
 }
 
 func main() {
-	newButton, _ := new(buttonFactory).getButton(runtime.GOOS)
+	newButton, _ := getButtonFactory(runtime.GOOS)
 	newButton.render()
 }
